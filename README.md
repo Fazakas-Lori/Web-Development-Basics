@@ -2,141 +2,106 @@
 
 ## State
 
-- Javascript Module usage
-- Restructured App
+-
+-
 
 ## Initial Problem
 
-- Module error loading still persists, there is no server component and/OR js is not bundled into a single file
+- UI is still pretty static, template is used but it is still coded in HTML
 
-## Creating a full **JS Module-Based Development Experience** / Tasks
+## Moving from HTML UI coding to JS-based UI coding with REACT / Tasks
 
-1. Create a Configuring File
+1. Install REACT UI library
+   - run `npm install react react-dom`
+     - Notice: in `package.json` REACT and REACT-DOM appeared as a dependencies under `dependencies` object
+   -
+2. Connect `index.js` to REACT lib
 
-   - create a webpack.config.js file under `[root]` folder
-     - Notice: This file [should](https://webpack.js.org/configuration/configuration-languages/) have CommonJS syntax
-     - basic syntax is
-     ```
-     module.exports = {}
-     ```
-
-2. Configure Webpack `mode`, `entry` and `output`
-
-   - modify config file to
+   - modify code of `index.js` to the following:
 
    ```
-   module.exports = {
-     mode: "development",
-     entry: { bundle: "./src/index.js" },
-     output: {
-       path: __dirname + "/dist",
-       filename: "[name].js",
-     },
-   }
+   import { createRoot } from "react-dom/client";
+   import { App } from "./App";
+
+   // Render your React component in the root element
+   const root = createRoot(document.getElementById("app"));
+   root.render(<App />);
    ```
 
-   - Read and understand config file modifications
-     - Notice: entry file and folder as well output file and folder is given now => we can change these however we want
-     - Notice: output name changed to `bundle.js` (`entry` object)
-     - Notice: mode changed to `development` => generated `bundle.js` has a lot of plus code
-   - delete the trailing `--mode production` in package.json
-   - run the `npm run build` command
-     - Notice: build now reads config file
-   - change the script reference from `./main.js` to `./bundle.js` in `index.html`
-   - check in browser to see that building blocks still work ok
+   - Read the code and understand it
+     - Notice: React module usage
+     - Notice: Finding and rendering REACT app dynamically in a _root_ tag in the html file
+     - Notice: Root UI component appears with REACT syntax: `<App />`
 
-3. Adding Html Plugin
+3. Create App component
 
-   - run the command `npm install -D html-webpack-plugin`
-     - Notice: `html-webpack-plugin` appears in `package.json` under `devDependencies`
-   - in `webpack.config.js` modify file to use new plugin
-
-     - import the module at the top of the file: `const HTMLWebpackPlugin = require("html-webpack-plugin");`
-     - under `output` object, add a new, `plugins` object
-
-     ```
-     plugins: [
-     new HTMLWebpackPlugin({
-      title: "Webpack App, YEY!",
-      favicon: "./src/favicon.ico",
-      filename: "index.html",
-     }),
-     ],
-
-     ```
-
-- read and understand the plugin objects
-  - Multiple webpack plugins possible `[]`
-  - can customize `title`,`favicon` as well as output `file` name through HtmlWebpackPlugin
-- move file `favicon.ico` from `dist` to `src`
-- run `npm run build` command
-  - Notice: favicon.ico (resource) is copied to output folder
-  - Notice: `index.html` contents changed inside `dist` folder. It does not have a starting template file to build upon
-- Add templating
-  - In `/src` folder create a `template.html` basic HTML file
-  ```
-  <!DOCTYPE html>
-  <html>
-  <head></head>
-  <body>
-    <div id="app"></div>
-  </body>
-  </html>
-  ```
-  - Modify `webpack.config.js / plugins / HTMLWebpackPlugin` object
-    - under `filename` add `template: "./src/template.html",`
-- delete `dist` folder
-- run `npm run build` command
-  - Check contents of `dist/index.html`
-  - Notice: App still works in browser
-- Modify `template.html`, adding a new tag to it, like: `<a href="https://www.google.com">Google</a>`
-- run `npm run build` command
-  - Notice: Anything you add to template file will be visible on the page => _templating works_
-
-4. Configure Webpack with a development server (_rerunning `npm run build` getting very tiresome_)
-
-   - Modify `webpack.config.js / plugins / HTMLWebpackPlugin` object
-   - After `plugins` array, add a new object
+   - in `/src` folder create a file called `App.js`
+   - Content of `App.js` should be
 
    ```
-   devServer: {
-    static: {
-      directory: __dirname + "/dist",
-    },
-    port: 9000,
-    open: true,
-    hot: true,
+   const App = () => {
+   return <h1>{"Hello, REACT!"}</h1>;
+   };
+
+   export { App };
+   ```
+
+   - Run `npm run build` command
+     - Notice: webpack build gives an error for an unexpected token. It suggests we use a loader
+
+4. Lets do that. Lets use Babel Loader within Webpack build process
+   - Run `npm install -D @babel/core babel-loader`
+     - Explanation: `@babel/core` is the main transpiler framework. `bable-loader` is the webpack loader
+   - Run `npm install -D @babel/preset-env @babel/preset-react`
+     - Explanation: Presets are concrete transpilers.
+       `@babel/preset-env` is a transpiler that converts JS to ES5 JS syntax
+       `@babel/preset-react` is a transpiler that converts REACT syntax to JS syntax
+   - Modify `webpack.config.js` to use the newly installed babel-loader and its presets. Under `devServer` object add the following
+   ```
+   module: {
+    rules: [
+      {
+        test: /\.(js)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env", ["@babel/preset-react", { runtime: "automatic" }]],
+          },
+        },
+      },
+    ],
    },
-
    ```
+5. Readd your old JS code to `App.js`, so its code should now look something like the following
 
-   - Read and understand the devServer object
-     - Notice: Served dir name is configurable by `static: {}` object
-     - Notice: Port of dev server configurable by `port: 9000`
-     - Notice: hot reloading enabled by `hot: true` option
-     - Notice: opening of page now enabled after build by `open: true` option
-   - Modify `package.json` so it will start the dev server
-     - in `scripts` object, under `build`, add `"dev": "webpack serve"` (comma needed after `build` line)
-   - run `npm run dev` command
-     - install the `webpack-dev-server` if prompted
-     - Notice: server now started on `localhost:9000` and browser opened automatically to this location
-   - Try _hot-reload_ feature
-     - add `<a href="https://www.yahoo.com">Yahoo</a>` to `template.html` and save
-     - modify `module1.js`-s exported functions return value
-       - Notice: after saving files, `index.html`, in `localhost:9000` displays the new content
+```
+import { generateText } from "./module1.js";
+
+const App = () => {
+  return (
+    <>
+      <h1>{generateText("Hello, Web Dev2!")}</h1>
+      <h1>{generateText("Hello, REACT!")}</h1>
+    </>
+  );
+};
+
+export { App };
+
+```
+
+6. Try out the full build/compilation process
+
+   - run `npm run build`
+   - run `npm run dev` for a full font-end-dev experience
+
+7. Cry a little, but just a little
+   - open the bundled js file, `bundle.js`, in `dist` folder, and marvel at its size and content now
 
 ## New Features
 
-- Dist folder content generation
-- Html file templating
-- Development Server
-- Hot Reloading
-
-## Ending Problems
-
-- ???
-- App is very baseic
-  - Finish the app by
-    1. Install and use a node module that can add some flavour to your text generation (e.g. [uuid](https://www.npmjs.com/package/uuid))
-    2. Add a `textArea` into the HTML with an id of your choice, using attribute `id`
-    3. Add a button and a `click` event handler to it that generates some new, random text upon cliking it and modifies the `textarea` elements value
+- App UI can be coded by using a JS-based UI library, REACT
+- (Almost) Full Frontend Compilation process
+  - UI library syntax is converted to JS by a transpiler, Babel
+  - Cross browser functionality ensured by a transpiler, Babel

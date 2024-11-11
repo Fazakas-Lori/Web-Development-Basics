@@ -1,5 +1,5 @@
 const generateText = (text) => {
-  return `Text: ${text}`;
+  return `Text with hot reload: ${text}`;
 };
 
 export { generateText };

@@ -7,32 +7,47 @@
 
 ## Initial Problem
 
-- Modules can only be used with the http protocol (source cannot be a file from disk, must be from a server)
+- Module error loading still persists, there is no server component and/OR js is not bundled into a single file
 
-## **JS Module-Based Development** / Tasks
+## Bundling **JS Modules** into a **Single JS file** / Tasks
 
-1. Restructure App to a JS Module-Based development
+1. Transform app into a package: `npm init -y`
 
-   - create a `dist` folder under `root`
-     - create an `index.html` here, copy contents of old html file here, or copy contents of `dist/index.html` from github
-   - create a `src` folder under `root`
-     - create an `module1.js` here, copy contents of `module1.js` from github
-       - read and understand the code inside `module1.js`
-       - Notice: 1 function is exported, generates some text
-     - create an `index.js` here, copy content of `index.js` from github
-       - read and understand the code inside `index.js`
-       - Notice: Old script code from html was moved here
-       - Notice: 1 function is imported from `module1.js`, named `generateText()`
-     - delete old files (`webdev1.html`,`module1.js`,`module2.js`)
+   - Notice: package.json appears in `[root]` folder
+     - package.json is necessary for installing other packages, like bundlers, transpilers, etc...
+   - installed packages will appear inside a new folder under root: `[root]/node_modules`
 
-2. Run the app by opening the html in a browser
+2. Use/Install webpack module bundler package: `npm install -D webpack webpack-cli`
+   - Notice `webpack` and `webpack-cli` in `package.json/scripts`
+3. Modify `package.json/scripts` to
 
-- Notice: Module error in Developer Tools / Console Panel
+   ```
+   "scripts": {
+     "build": "webpack --mode production"
+   }
+   ```
+
+4. Run bundler and check results
+   - `npm run build`
+   - Notice: `npm run [script_name]`
+   - Notice: `main.js` appears in `dist` folder
+   - Notice: `main.js` is now a fully bundled JS file - **it is NOT in module form**
+5. Change reference to script in index.html
+   - `<script src="../src/index.js"></script>` to `<script src="./main.js"></script>`
+   - Load the new html file in a browser, it should work correctly
+6. Rename index.js to any other name and build the app
+   - Notice: Build error
+   - Revert renamig
 
 ## New Features
 
-- Dist folder contains distributables
+- App is now a package, can be distributed
+- App can use npm packages (npm_modules folder)
+- App/BL can be structured around JS modules
 
 ## Ending Problems
 
-- Module error loading still persists, there is no server component and/OR js is not bundled into a single file
+- Dist Folder committed and not generated
+- index.html script reference changes
+- Cant Rename index.js
+- Constant Rebuilding and Refreshing app in browser

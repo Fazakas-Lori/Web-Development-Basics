@@ -1,0 +1,1 @@
+(()=>{"use strict";document.addEventListener("DOMContentLoaded",(()=>{console.log("Hello, Web Dev 2!");let e=document.createElement("h1");e.innerHTML="Text: Somenewtext",document.body.appendChild(e)}))})();

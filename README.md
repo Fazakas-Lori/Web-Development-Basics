@@ -1,107 +1,87 @@
 # Web-Development-Basics
 
-## State
+## REACT - The Very Basics
 
--
--
+1. [Functional Components](https://react.dev/reference/react/components) - [Profile Component](https://react.dev/learn/your-first-component#defining-a-component)
 
-## Initial Problem
-
-- UI is still pretty static, template is used but it is still coded in HTML
-
-## Moving from HTML UI coding to JS-based UI coding with REACT / Tasks
-
-1. Install REACT UI library
-   - run `npm install react react-dom`
-     - Notice: in `package.json` REACT and REACT-DOM appeared as a dependencies under `dependencies` object
-   -
-2. Connect `index.js` to REACT lib
-
-   - modify code of `index.js` to the following:
+   - Under `/src` create a new file called Profile.js, and add the following contents to it
 
    ```
-   import { createRoot } from "react-dom/client";
-   import { App } from "./App";
+   const Profile = () => {
+   return (
+    <img
+      src="https://i.imgur.com/MK3eW3Am.jpg"
+      alt="Katherine Johnson"
+    />
+   )
+   }
 
-   // Render your React component in the root element
-   const root = createRoot(document.getElementById("app"));
-   root.render(<App />);
+   export { Profile };
    ```
 
-   - Read the code and understand it
-     - Notice: React module usage
-     - Notice: Finding and rendering REACT app dynamically in a _root_ tag in the html file
-     - Notice: Root UI component appears with REACT syntax: `<App />`
+   - To use the new component, modify `App.js` to render it
 
-3. Create App component
+     - add `import { Profile } from "./Profile.js";` somewhere at the top of the file
+     - add `<Profile />` in your return clause
 
-   - in `/src` folder create a file called `App.js`
-   - Content of `App.js` should be
+   - To customize a component use [props](https://react.dev/learn/passing-props-to-a-component)
+     - modify `Profile.js`, by adding `props` (parameters) to it
+       - modify component function declaration to include props object: `const Profile = ({ name, size }) => {...}`
+       - modify return value so it can return a multitude of nodes: `return (<>...</>);`
+       - add a name element to the returned value, which uses the name part of the props object: `<h2>{name}</h2>`
+       - modify img element so it uses the size part of the props object: `<img src="https://i.imgur.com/MK3eW3Am.jpg" alt={name} width={size.width} height={size.height} />`
+     - modify `App.js` to use the new `Profile` component, by supplying props to it `<Profile name={"Katherine Johnson"} size={{ width: 200, height: 200 }} />`
+
+2. [State Management](https://react.dev/learn/managing-state) - [Counter Component](https://react.dev/reference/react-dom/client/createRoot#usage)
+   - Modify `Profile.js` so it counts and shows the number of time the user clicks on the image
+     - create a variable pair inside the component that will hold the click count: `const [clickCount, setClickCount] = useState(0);`
+     - `useState` is a hook (js function) in react used for component state management, so you need to import it: `import { useState } from "react";`
+     - add a paragraph REACT element unde the image that will display the number of clicks: `<p>Click count: {clickCount}</p>`
+     - inside the component, above the `return` statement, create a function that will handle the image clicks
+     ```
+     const handleClick = () => {
+       setClickCount(clickCount + 1);
+     };
+     ```
+     - bring it all together by adding a REACT event to the `img` REACT element `<img onClick={handleClick} src="https://i.imgur.com/MK3eW3Am.jpg" alt={name} width={size.width} height={size.height} />`
+
+- Try it out in the browser
+
+3. [Hooks](https://react.dev/reference/react/hooks) - Readding our old Geolocation code, so it executes when the component loads
+
+   - On Hooks
+
+     - hooks are functions used to _hook into_ component lifecycle events
+     - syntax of `const [clickCount, setClickCount] = useState(0);` may be a bit weird, it is [Destructing Assignment syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
+
+   - Get the old geolocation code, it was something like the following
 
    ```
-   const App = () => {
-   return <h1>{"Hello, REACT!"}</h1>;
-   };
-
-   export { App };
+   document.addEventListener("DOMContentLoaded", () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log(position.coords.latitude);
+      console.log(position.coords.longitude);
+    });
+   });
    ```
 
-   - Run `npm run build` command
-     - Notice: webpack build gives an error for an unexpected token. It suggests we use a loader
+   - Add an effect, specifically the useEffect hook, to the `Profile.js` Component, immediately as the firts line of the function: `useEffect(() => {}, []);`
+     - Notice the `useEffect` function requires 2 parameters: 1st -function to execute, 2nd - dependency array with reactive values which trigger rerun of 1st param function. An empty array means the function run only once
+   - Move the old codes main logic inside the `useEffect`
 
-4. Lets do that. Lets use Babel Loader within Webpack build process
-   - Run `npm install -D @babel/core babel-loader`
-     - Explanation: `@babel/core` is the main transpiler framework. `bable-loader` is the webpack loader
-   - Run `npm install -D @babel/preset-env @babel/preset-react`
-     - Explanation: Presets are concrete transpilers.
-       `@babel/preset-env` is a transpiler that converts JS to ES5 JS syntax
-       `@babel/preset-react` is a transpiler that converts REACT syntax to JS syntax
-   - Modify `webpack.config.js` to use the newly installed babel-loader and its presets. Under `devServer` object add the following
    ```
-   module: {
-    rules: [
-      {
-        test: /\.(js)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", ["@babel/preset-react", { runtime: "automatic" }]],
-          },
-        },
-      },
-    ],
-   },
+     useEffect(() => {
+       navigator.geolocation.getCurrentPosition((position) => {
+         console.log(position.coords.latitude);
+         console.log(position.coords.longitude);
+       });
+     }, []);
    ```
-5. Readd your old JS code to `App.js`, so its code should now look something like the following
 
-```
-import { generateText } from "./module1.js";
+   - Check that it works in the browser
 
-const App = () => {
-  return (
-    <>
-      <h1>{generateText("Hello, Web Dev2!")}</h1>
-      <h1>{generateText("Hello, REACT!")}</h1>
-    </>
-  );
-};
+   <br/>
+   <br/>
+   <br/>
 
-export { App };
-
-```
-
-6. Try out the full build/compilation process
-
-   - run `npm run build`
-   - run `npm run dev` for a full font-end-dev experience
-
-7. Cry a little, but just a little
-   - open the bundled js file, `bundle.js`, in `dist` folder, and marvel at its size and content now
-
-## New Features
-
-- App UI can be coded by using a JS-based UI library, REACT
-- (Almost) Full Frontend Compilation process
-  - UI library syntax is converted to JS by a transpiler, Babel
-  - Cross browser functionality ensured by a transpiler, Babel
+# 🥳🎉 CONGRATULATIONS! YOU ARE NOW A FRONT-END DEVELOPER! 🥳🎉

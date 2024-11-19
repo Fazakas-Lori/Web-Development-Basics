@@ -1,118 +1,181 @@
 # Web-Development-Basics
 
-## STYLING the BASIC Vanilla JS Calculator / TASKS
+## Rewriting the Calculator App in REACT / TASKS
 
-1.  Add classes to the created DOM nodes so we can apply css styling to them through css class syntax `.[classname] {}`
+1. (Re)Install REACT packages and configure transpiling JSX syntax
+   - Install the REACT packages by running `npm install react react-dom`
+   - Install the babel react transpiler by running `npm install -D @babel/preset-react`
+   - Configure presete-react transpiling by modifying `webpack.config.js` loader options to the following
+   ```
+   options: {
+     presets: ["@babel/preset-env", ["@babel/preset-react", { runtime: "automatic" }]],
+   },
+   ```
+   - Try a build
+2. Rewrite Vanilla JS codes to REACT syntax
 
-    - Add a class to the calculator `calculator.className = "calculator";`
-    - Add a class to the display ` display.className = "calculator-display";`
-    - Add a class to the displayContainer `displayContainer.className = "calculator-display-container";`
+   - Modify `src/index.js`
+     - delete all codes, as they are just litter
+     - to import the `createRoot` function from react-dom: `import { createRoot } from "react-dom/client";`
+     - to import a component name _App_ from `App.js`, instead of a vanilla JS function: `import { App } from "./App.js";`
+     - to create the REACT root component: `const root = createRoot(document.getElementById("app"));`
+     - to render the imported _App_ component: `root.render(<App />);`
+   - Try the build now
+     - Notice: We get a warning stating that no _App_ is exported from `App.js`
+   - Modify `src/App.js`
+     - by deleting the old export ~~`export { CreateCalculator };`~~
+     - to define an empty _App_ component with
+     ```
+     const App = () => {
+       return (
+         <>
+           <h1>{"Hello, Web Dev3!"}</h1>
+         </>
+       );
+     };
+     ```
+     - to export the component with the following `export { App };`
+   - Try the build now, it shouldn't have any warnings or errors
+   - Move the old logic inside a new component called _Calculator_
 
-2.  Create a basic style sheet for the app
-    - Create a `src/styles.css` file and Add the following content to it
-    ```
-    body {
-      color: black;
-      background-color: red;
-    }
-    ```
-    - Try it out using `npm run dev`
-      - Notice: no styling has been applied, background og page is not _red_
-      - Notice: HTMLTag lvl styling
-      - Notice: `color` for font colors
-      - Notice: `background-color` for box color - (CSS Box Model)[https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model]
-      - Notice: To **see box model in action**, open a website, right click on an element and select the _Inspect_ option, the start going through the html code with your mouse while looking at the page,
-    - Delete `/dist` folder, and run `npm run build` to regenerate it
-    - Search inside `dist` folder files for css content
-      - Notice: No css code has been bundled with the JS
-3.  Basic bundling of the stylesheet together with the app
+     - create a new file, `src/Calculator.js`, this will house a _Calculator_ component
+     - delete all of the old code from `src/App.js`
+     - export an empty calculator component
 
-    - Modify `src/template.html` to refer to the stylesheet by adding the following line in its _head_ section: `<link rel="stylesheet" href="styles.css" type="text/css" />`
-      - Notice: `<link>` tag - used to refer to stylesheet files most of the time
-    - Rerunning `npm build now` will result in `dist/index.html` referring to a file
-    - Install the simple lugin called _copy-webpack-plugin_ (which will copy `src/styles.css` to the `/dist` folder): `npm install -D copy-webpack-plugin`
-      - Check for a successful install (it appears in `package.json` and `node_modules`)
-    - Configure the new plugin in the frontend compilers config file, `webpack.config.js`, by adding the following to the _plugins_ object
+     ```
+     const Calculator = () => {
+       return (
+         <>
+         </>
+       );
+     };
 
-    ```
-        new CopyPlugin({
-          patterns: [{ from: "**/*.css", context: "src" }],
-        }),
-    ```
+     export { Calculator };
+     ```
 
-    - Dont forget to import the CopyPlugin class with `const CopyPlugin = require("copy-webpack-plugin");`
-    - Rerun `npm run build` and check if `styles.css` is copied to dist folder
-    - Run `npm run dev` and check if `styles.css` is applied
+     - modify `App.js` to import and use the _Calculator_ component [code missing intentionally]
+     - start using the dev server to see changes instantenously
+     - focus on the _return_ statement of the _Calculator_ component. It can export a HTML-like tree structure to create the calculator elem tree, instead of using DOM manipulation syntax. Rewrite it to the following:
+       - Notice: Thinking in REACT
+       - Notice: Thinking in REACT
+       ```
+       <>
+       <div className="calculator">
+        <div className="calculator-display-container">
+          <div>
+            <span className="calculator-display"></span>
+          </div>
+        </div>
+        <div className="calculator-buttons">
+          <input type="button" value="0" />
+          <input type="button" value="C" />
+          <input type="button" value="X" />
+          <input type="button" value="/" />
+          <input type="button" value="7" />
+          <input type="button" value="8" />
+          <input type="button" value="9" />
+          <input type="button" value="+" />
+          <input type="button" value="4" />
+          <input type="button" value="5" />
+          <input type="button" value="6" />
+          <input type="button" value="-" />
+          <input type="button" value="1" />
+          <input type="button" value="2" />
+          <input type="button" value="3" />
+          <input type="button" value="=" />
+        </div>
+       </div>
+       </>
+       ```
 
-4.  Styling the app
+   - Check the browser after saving the file, the basic structure should appear
+   - Import REACTs _useState_ so the component can have state management ``
+   - Add the display value to the component, deleting the old code values
+     - Notice: using REACTs _useState_ method, which will cause a rerender of the component when setting the value
+     ```
+     const [displayText, setDisplayText] = useState("0");
+     ```
+   - Add the display value to the component inside the span `<span className="calculator-display">{displayText}</span>`
+     - Notice: JSX syntax _{}_ inside html-like elements
+     - Notice: keep tracking Browser / Dev tools + Console for changes
+   - Add the _number1_, _number2_ and _operator_ state variables similarly to display
 
-    - Open `src/styles.css` for editing
-    - Remove the awful red coloring of the page, change it `whitesmoke`
-      - Notice: it Dev Server is running, you will have to refresh page when editing stylesheet
-    - Add styling to the main container, `calculator` through its class (please have the dev server running)
+   ```
+   const [number1, setNumber1] = useState(0);
+   const [number2, setNumber2] = useState(0);
+   const [operator, setOperator] = useState(null);
+   ```
 
-    ```
-    .calculator {
-      margin: 20px auto;
-      padding: 20px;
-      max-width: 400px;
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    ```
+   - move `handleClick`, `reset`, `calculateOperationResult` and `getNumberToDisplay` inside the component and edit the returned jsx syntax to use the click handler `<input type="button" value="0" onClick={handleClick} />`
 
-    - Try it out by refreshing the page
+     - Notice: if you try to test the app now, it will give a lot of errors. You need to use the new state management functions when setting any variable, so it will trigger a rerendering of the component
+     - Notice: Performance vs DX
+     - The new functions should look like:
 
-      - Notice: App is centralised horizontally on page by `margin 20px auto` (shorthand for `margin-top: 20px`, `margin-bottom: 20px`, `margin-right: auto` and `margin-left: auto`)
-      - Notice: Calculator container has a white background (`background-color: white;`) and stick out of page with a styling trick `box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);`
-      - Notice: Calculator box is rounded by `border-radius: 5px;`
-      - Notice: Margin is border area (repr. by a number) that separates the box from neighbouring boxes
-      - Notice: Padding is border area (repr. by a number) that separates the box from inner / child boxes (`padding: 20px` is a shorthand and applies padding border area to left, top, bottom and right of the box, going inwards)
-      - Notice: css syntax heavily refers its box model (padding, margin, box-shadow, box width / height, box border...)
+     ```
+     const reset = () => {
+       setNumber1(0);
+       setNumber2(0);
+       setOperator(null);
+     };
 
-    - Add styling to the display and refresh the app
+     const calculateOperationResult = () => {
+       if (operator === "+") {
+         return number1 + number2;
+       }
+       if (operator === "-") {
+         return number1 - number2;
+       }
+       if (operator === "X") {
+         return number1 * number2;
+       }
+       if (operator === "/") {
+         return number1 / number2;
+       }
+     };
 
-    ```
-    .calculator-display-container {
-       margin: 10px auto;
-       padding: 10px;
-       background-color: whitesmoke;
-       border-radius: 5px;
-    }
+     const getNumberToDisplay = (numberStr) => {
+       const number = Number(numberStr);
+       let numberToDisplay = undefined;
 
-    .calculator-display {
-       margin: 10px auto;
-    }
-    ```
+       if (operator !== null) {
+         let newNum2 = number2 * 10 + number;
+         setNumber2(newNum2);
+         numberToDisplay = newNum2;
+       } else {
+         let newNum1 = number1 * 10 + number;
+         setNumber1(newNum1);
+         numberToDisplay = newNum1;
+       }
 
-5.  Order the buttons in the box with css. For this we should separate the buttons with a container
+       return numberToDisplay;
+     };
 
-    - Add a container for the buttons by modifying createCalculator function in `src/App.js`
+     const handleClick = (e) => {
+       const symbol = e.target.value;
+       console.log(`${symbol} button clicked`);
+       // special characters
+       if (symbol === "C") {
+         setDisplayText("0");
+         reset();
+       } else if (symbol === "+" || symbol === "-" || symbol === "X" || symbol === "/") {
+         let newOpVal = symbol;
+         setOperator(newOpVal);
+         setDisplayText(newOpVal);
+       } else if (symbol === "=") {
+         let newNum1 = calculateOperationResult();
+         setDisplayText(newNum1);
+         reset();
+         setNumber1(newNum1);
+       }
+       // numbers
+       else {
+         setDisplayText(getNumberToDisplay(symbol));
+       }
+     };
+     ```
 
-    ```
-      const calculatorButtonContainer = document.createElement("div");
-      calculatorButtonContainer.className = "calculator-buttons";
-
-      const display = CreateDisplay(calculator);
-      calculator.appendChild(calculatorButtonContainer);
-    ```
-
-    - Make sure buttons are added to this new container instead of the main `calculator` cotainer by modifying the button creation lines to `symbols.push(CreateSymbolButton(calculatorButtonContainer, 0));`
-    - Add styling to the button container in `src/styles.css`
-
-    ```
-    .calculator-buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-gap: 10px;
-      margin: 0 auto;
-    }
-
-    ```
-
-    - Reload the page and take a look at an okayishly styled calculator
-      - Notice: CSS grid layout with 'display: grid'
-    - Change font color of the app by modifying the `body`s `color` in `src/styles.css` to `color: green`
-      - Notice: Only the displays text changed color - There is a default styling for elements, some will inherit from upper elements, some have to be overwritten manually
-      - Add `input { color: green;}` to see this
+   - Try testing the app now, it should work like a charm
+     - Notice: where we set variables we have changed the code to use the new state management functions `display.innerText = getNumberToDisplay(symbol);` **VS** `setDisplayText(getNumberToDisplay(symbol));`
+     - Notice: The app retains its the old styling
+   - Try adding a new Calculator component inside `App.js`

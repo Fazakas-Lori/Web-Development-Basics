@@ -1,11 +1,44 @@
 # Web-Development-Basics
 
-## Further challenges
+## Creating a BASIC Vanilla JS Calculator / TASKS
 
-_Note: If you commit to this repository, please use a separate branch_
+1. Cleaning UP Sources - Remove all REACT associated codes so repository will be in a REACT-free state
 
-1.  Add Styling to your project
-    - A good pointer could be [this](https://gist.github.com/bradtraversy/1c93938c1fe4f10d1e5b0532ae22e16a) tutorial
-2.  Build a more complex REACT project, following reacts tutorial
-    - REACTs own [tutorial](https://react.dev/learn/tutorial-tic-tac-toe) ~ 1Hrs
-    - Make sure to also read [Thinking in React](https://react.dev/learn/thinking-in-react) ~ 20 mins
+   - Remove packages react, react-dom by running `npm uninstall react react-dom`
+   - Remove the react transpiler by running `npm uninstall @babel/preset-react`
+   - Remove the react transpiler usage from webpack.config.js. `babel-loader` options should look like
+
+   ```
+    options: {
+      presets: ["@babel/preset-env"],
+    },
+   ```
+
+   - Delete unnecessary JS module files
+     - module1.js
+     - Profile.js
+   - Delete the errouneously commited files `dist/favicon.ico` and `dist/index.html` by deleting `dist` folder
+   - Modify App.js module to export a single, empty `CreateCalculator` function
+
+   ```
+   const CreateCalculator = () => {};
+   export { CreateCalculator };
+   ```
+
+   - Modify `index.js` by cleaning it of the old code and importing only the new `CreateCalculator` function. Its content should look like
+
+   ```
+   import { CreateCalculator } from "./App.js";
+
+   document.addEventListener("DOMContentLoaded", () => {
+     console.log("DOM is ready");
+   });
+   ```
+
+   - Run `npm install` packages in `/node_modules` in an optimal state
+   - Delete `/dist` folder and run `npm run build` to see if webpack build is still working
+   - Test that webpack bundling and serve-ing still works by running `npm run dev`
+     - Correct missing title / localhost:9000 title bug by adding the following line to the `head` section of `src/template.html`
+     ```
+     <title><%= htmlWebpackPlugin.options.title %></title>
+     ```

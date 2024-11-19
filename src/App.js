@@ -9,7 +9,9 @@ const CreateSymbolButton = (calculator, symbol) => {
 
 const CreateDisplay = (calculator) => {
   const displayContainer = document.createElement("div");
+  displayContainer.className = "calculator-display-container";
   const display = document.createElement("span");
+  display.className = "calculator-display";
   display.innerText = "0";
 
   displayContainer.appendChild(display);
@@ -20,9 +22,14 @@ const CreateDisplay = (calculator) => {
 
 const CreateCalculator = () => {
   const calculator = document.createElement("div");
+  calculator.className = "calculator";
   document.getElementById("app").appendChild(calculator);
 
+  const calculatorButtonContainer = document.createElement("div");
+  calculatorButtonContainer.className = "calculator-buttons";
+
   const display = CreateDisplay(calculator);
+  calculator.appendChild(calculatorButtonContainer);
 
   let number1 = 0;
   let number2 = 0;
@@ -85,25 +92,25 @@ const CreateCalculator = () => {
 
   const symbols = [];
 
-  symbols.push(CreateSymbolButton(calculator, 0));
-  symbols.push(CreateSymbolButton(calculator, "C"));
-  symbols.push(CreateSymbolButton(calculator, "X"));
-  symbols.push(CreateSymbolButton(calculator, "/"));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 0));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "C"));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "X"));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "/"));
 
-  symbols.push(CreateSymbolButton(calculator, 7));
-  symbols.push(CreateSymbolButton(calculator, 8));
-  symbols.push(CreateSymbolButton(calculator, 9));
-  symbols.push(CreateSymbolButton(calculator, "+"));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 7));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 8));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 9));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "+"));
 
-  symbols.push(CreateSymbolButton(calculator, 4));
-  symbols.push(CreateSymbolButton(calculator, 5));
-  symbols.push(CreateSymbolButton(calculator, 6));
-  symbols.push(CreateSymbolButton(calculator, "-"));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 4));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 5));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 6));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "-"));
 
-  symbols.push(CreateSymbolButton(calculator, 1));
-  symbols.push(CreateSymbolButton(calculator, 2));
-  symbols.push(CreateSymbolButton(calculator, 3));
-  symbols.push(CreateSymbolButton(calculator, "="));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 1));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 2));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, 3));
+  symbols.push(CreateSymbolButton(calculatorButtonContainer, "="));
 
   symbols.forEach((symbolNode) => {
     symbolNode.addEventListener("click", (e) => {

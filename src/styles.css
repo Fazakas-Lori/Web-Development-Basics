@@ -1,0 +1,32 @@
+body {
+  color: black;
+  background-color: whitesmoke;
+}
+
+.calculator {
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-display-container {
+  margin: 10px auto;
+  padding: 10px;
+  background-color: whitesmoke;
+  border-radius: 5px;
+}
+
+.calculator-display {
+  margin: 10px auto;
+}
+
+.calculator-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+  margin: 0 auto;
+  background-color: white;
+}

@@ -1,220 +1,118 @@
 # Web-Development-Basics
 
-## Creating a BASIC Vanilla JS Calculator / TASKS
+## STYLING the BASIC Vanilla JS Calculator / TASKS
 
-1.  Create the container for the calculator
+1.  Add classes to the created DOM nodes so we can apply css styling to them through css class syntax `.[classname] {}`
 
-    - Modify `src/App.js`'s CreateCalculator function so when it is called it inserts a new container tag for a calculator, essentially creating one
+    - Add a class to the calculator `calculator.className = "calculator";`
+    - Add a class to the display ` display.className = "calculator-display";`
+    - Add a class to the displayContainer `displayContainer.className = "calculator-display-container";`
+
+2.  Create a basic style sheet for the app
+    - Create a `src/styles.css` file and Add the following content to it
+    ```
+    body {
+      color: black;
+      background-color: red;
+    }
+    ```
+    - Try it out using `npm run dev`
+      - Notice: no styling has been applied, background og page is not _red_
+      - Notice: HTMLTag lvl styling
+      - Notice: `color` for font colors
+      - Notice: `background-color` for box color - (CSS Box Model)[https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model]
+      - Notice: To **see box model in action**, open a website, right click on an element and select the _Inspect_ option, the start going through the html code with your mouse while looking at the page,
+    - Delete `/dist` folder, and run `npm run build` to regenerate it
+    - Search inside `dist` folder files for css content
+      - Notice: No css code has been bundled with the JS
+3.  Basic bundling of the stylesheet together with the app
+
+    - Modify `src/template.html` to refer to the stylesheet by adding the following line in its _head_ section: `<link rel="stylesheet" href="styles.css" type="text/css" />`
+      - Notice: `<link>` tag - used to refer to stylesheet files most of the time
+    - Rerunning `npm build now` will result in `dist/index.html` referring to a file
+    - Install the simple lugin called _copy-webpack-plugin_ (which will copy `src/styles.css` to the `/dist` folder): `npm install -D copy-webpack-plugin`
+      - Check for a successful install (it appears in `package.json` and `node_modules`)
+    - Configure the new plugin in the frontend compilers config file, `webpack.config.js`, by adding the following to the _plugins_ object
 
     ```
-    const calculator = document.createElement("div");
-    calculator.innerHTML = "<span>some text<span>";
-    document.getElementById("app").appendChild(calculator);
+        new CopyPlugin({
+          patterns: [{ from: "**/*.css", context: "src" }],
+        }),
     ```
 
-    - Modify `src/index.js` so it calls the `CreateCalculator` function after DOM is loaded `CreateCalculator();`
-    - Try it out by running `npm run dev` and checking the DOM
-      - Notice: DOM node creation with `document.createElement([tagName])`
-      - Notice: DOM node searching/getting with `document.getElementById()`
-      - Notice: DOM node insertion with `[node].appendChild()`
-      - Notice: DOM node/tree insertion with `[node].innerHTML=`
+    - Dont forget to import the CopyPlugin class with `const CopyPlugin = require("copy-webpack-plugin");`
+    - Rerun `npm run build` and check if `styles.css` is copied to dist folder
+    - Run `npm run dev` and check if `styles.css` is applied
 
-2.  Create a display for the calculator
+4.  Styling the app
 
-    - Call a function called CreateDisplay() and pass the calculator to it: `const display = CreateDisplay(calculator);`
-    - Write the `CreateDisplay` function
-
-    ```
-      const CreateDisplay = (calculator) => {
-      const displayContainer = document.createElement("div");
-      const display = document.createElement("span");
-      display.innerText = "0";
-
-      displayContainer.appendChild(display);
-
-      calculator.prepend(displayContainer);
-      return display;
-    };
-    ```
-
-    - Delete the calculator's initial span content, that was just for testing purposes ~~`calculator.innerHTML = "<span>some text<span>";`~~
-    - Try it out
-      - Notice: Appending to a DOM node as first child with `[node].prepend([node])`
-
-3.  Create the Buttons of the calculator
-
-    - Write a function called `CreateSymbolButton` which will take a parent node and a symbol string to insert
+    - Open `src/styles.css` for editing
+    - Remove the awful red coloring of the page, change it `whitesmoke`
+      - Notice: it Dev Server is running, you will have to refresh page when editing stylesheet
+    - Add styling to the main container, `calculator` through its class (please have the dev server running)
 
     ```
-      const CreateSymbolButton = (calculator, symbol) => {
-      const symbolButton = document.createElement("input");
-      symbolButton.type = "button";
-      symbolButton.value = symbol;
-      calculator.appendChild(symbolButton);
-
-      return symbolButton;
-    };
-    ```
-
-    - Add the buttons to the calculator by calling the `CreateSymbolButton` function with the necessary parameters, after the display codes
-
-    ```
-      CreateSymbolButton(calculator, 0);
-      CreateSymbolButton(calculator, "C");
-      CreateSymbolButton(calculator, "X");
-      CreateSymbolButton(calculator, "/");
-
-      CreateSymbolButton(calculator, 7);
-      CreateSymbolButton(calculator, 8);
-      CreateSymbolButton(calculator, 9);
-      CreateSymbolButton(calculator, "+");
-
-      CreateSymbolButton(calculator, 4);
-      CreateSymbolButton(calculator, 5);
-      CreateSymbolButton(calculator, 6);
-      CreateSymbolButton(calculator, "-");
-
-      CreateSymbolButton(calculator, 1);
-      CreateSymbolButton(calculator, 2);
-      CreateSymbolButton(calculator, 3);
-      CreateSymbolButton(calculator, "=");
-    ```
-
-    - Try it out and dont forget to check the `Developer Tools`'s Console for potential errors in your js code
-      - Notice: Creating an input element with `document.createElement("input")`
-      - Notice: Setting input type to button with `[inputVar].type = "button"`
-      - Notice: `<button></button> vs <input type="button"></input>`
-      - Notice: The app is now pretty ugly but we will style it later on
-
-4.  Add interactivity / Click Handlers to the inserted buttons
-    - Firstly, gather all buttons in a JS array. Create an array with `const symbols = [];`
-    - Modify each `CreateSymbolButton(calculator, 1);` so its return nodes are added to the array, like so `symbols.push(CreateSymbolButton(calculator, 1));`
-    - Iterate over the array, and attach an event handler to each calculator buttone node
-    ```
-      symbols.forEach((symbolNode) => {
-        symbolNode.addEventListener("click", (e) => {
-          console.log(`${e.target.value} button clicked`);
-        });
-      });
-    ```
-    - Try it out while checking the console
-      - Notice: Adding event listeners to DOM node with `[node].addEventListener("[event type]")`
-      - Notice: JS string interpolation notation with \`${jsObject}\`
-      - Notice: `e` object is the event, e.target is the target DOM node, in this case `HTMLInputElement`, e.target.value is its `value` property
-5.  Create event handling logic
-
-    - Create a function to handle button click events, named _handleClick_: `const handleClick = (symbol) => {};`
-    - Call the new function inside the click event handler
-
-    ```
-    symbolNode.addEventListener("click", (e) => {
-      handleClick(e.target.value);
-    });
-    ```
-
-    - Move the console logic inside the new event handler
-
-    ```
-    const handleClick = (symbol) => {
-      console.log(`${symbol} button clicked`);
-    };
-    ```
-
-    - Try it out if it still works
-
-6.  Handle button logic accordingly
-
-    - Create 3 variables that represent the memory state of the calculator. The app is very basic, will only be able to handle addition, substraction, multiplication and division between integers - in a buggy manner
-      ```
-      let number1 = 0;
-      let number2 = 0;
-      let operator = null;
-      ```
-    - Create a `reset` named function that will reset the above variables to the starting state - we will need this in the logic
-
-    ```
-      const reset = () => {
-        number1 = 0;
-        number2 = 0;
-        operator = null;
-      };
-    ```
-
-    - Create a `calculateOperationResult` function that will calculate the result on the two numbers
-
-    ```
-      const calculateOperationResult = () => {
-      if (operator === "+") {
-        return number1 + number2;
-      }
-      if (operator === "-") {
-        return number1 - number2;
-      }
-      if (operator === "X") {
-        return number1 * number2;
-      }
-      if (operator === "/") {
-        return number1 / number2;
-      }
-    };
-    ```
-
-    - Create the main central logic of the calculator app by modifying the `handleClick` function to the following
-
-    ```
-    const handleClick = (symbol) => {
-      console.log(`${symbol} button clicked`);
-      // special characters
-      if (symbol === "C") {
-        display.innerText = "0";
-        reset();
-      } else if (symbol === "+" || symbol === "-" || symbol === "X" || symbol === "/") {
-        operator = symbol;
-        display.innerText = operator;
-      } else if (symbol === "=") {
-        display.innerText = calculateOperationResult();
-        reset();
-      }
-      // numbers
-      else {
-      }
-    };
-    ```
-
-    - If you try out the app right now, youll notice it doesnt really do anything
-      - Notice: In in each branch of the logic we try to calculate the number for the dislay
-      - Notice: `display` variable usage / [JS Closure](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)
-      - Notice: When pressing `C` symbol, we reset the display and the vars
-      - Notice: When pressing `+`, `-`, `X` or `/` symbols, we just set an operator
-      - Notice: When pressing `=` symbol, just run a calculation with the two numbers and the operator
-    - We need to add logic to handle clicks on number symbols
-      - Create a function called `getNumberToDisplay` and call it in the empty else branch of the `handleClick` function
-
-    ```
-    else {
-      display.innerText = getNumberToDisplay(symbol);
+    .calculator {
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 400px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     ```
 
-    - The `getNumberToDisplay` functions' contents look like the following
+    - Try it out by refreshing the page
+
+      - Notice: App is centralised horizontally on page by `margin 20px auto` (shorthand for `margin-top: 20px`, `margin-bottom: 20px`, `margin-right: auto` and `margin-left: auto`)
+      - Notice: Calculator container has a white background (`background-color: white;`) and stick out of page with a styling trick `box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);`
+      - Notice: Calculator box is rounded by `border-radius: 5px;`
+      - Notice: Margin is border area (repr. by a number) that separates the box from neighbouring boxes
+      - Notice: Padding is border area (repr. by a number) that separates the box from inner / child boxes (`padding: 20px` is a shorthand and applies padding border area to left, top, bottom and right of the box, going inwards)
+      - Notice: css syntax heavily refers its box model (padding, margin, box-shadow, box width / height, box border...)
+
+    - Add styling to the display and refresh the app
 
     ```
-    const getNumberToDisplay = (numberStr) => {
-      const number = Number(numberStr);
-      let numberToDisplay = undefined;
+    .calculator-display-container {
+       margin: 10px auto;
+       padding: 10px;
+       background-color: whitesmoke;
+       border-radius: 5px;
+    }
 
-      if (operator !== null) {
-        number2 = number2 * 10 + number;
-        numberToDisplay = number2;
-      } else {
-        number1 = number1 * 10 + number;
-        numberToDisplay = number1;
-      }
-
-      return numberToDisplay;
-    };
+    .calculator-display {
+       margin: 10px auto;
+    }
     ```
 
-    - Try if out now
-      - Notice: It works for some scenarios, but not for others - e.g. divisions which give fractional results, operations chaining, etc...
-      - Notice: App is ugly, cry a little
+5.  Order the buttons in the box with css. For this we should separate the buttons with a container
+
+    - Add a container for the buttons by modifying createCalculator function in `src/App.js`
+
+    ```
+      const calculatorButtonContainer = document.createElement("div");
+      calculatorButtonContainer.className = "calculator-buttons";
+
+      const display = CreateDisplay(calculator);
+      calculator.appendChild(calculatorButtonContainer);
+    ```
+
+    - Make sure buttons are added to this new container instead of the main `calculator` cotainer by modifying the button creation lines to `symbols.push(CreateSymbolButton(calculatorButtonContainer, 0));`
+    - Add styling to the button container in `src/styles.css`
+
+    ```
+    .calculator-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+      margin: 0 auto;
+    }
+
+    ```
+
+    - Reload the page and take a look at an okayishly styled calculator
+      - Notice: CSS grid layout with 'display: grid'
+    - Change font color of the app by modifying the `body`s `color` in `src/styles.css` to `color: green`
+      - Notice: Only the displays text changed color - There is a default styling for elements, some will inherit from upper elements, some have to be overwritten manually
+      - Add `input { color: green;}` to see this

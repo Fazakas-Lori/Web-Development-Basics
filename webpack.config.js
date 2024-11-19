@@ -1,4 +1,3 @@
-const CopyPlugin = require("copy-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -14,9 +13,6 @@ module.exports = {
       favicon: "./src/favicon.ico",
       filename: "index.html",
       template: "./src/template.html",
-    }),
-    new CopyPlugin({
-      patterns: [{ from: "**/*.css", context: "src" }],
     }),
   ],
   devServer: {
@@ -38,6 +34,11 @@ module.exports = {
             presets: ["@babel/preset-env", ["@babel/preset-react", { runtime: "automatic" }]],
           },
         },
+      },
+      {
+        test: /\.(css)$/i,
+        exclude: /node_modules/,
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
     ],
   },

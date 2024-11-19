@@ -1,181 +1,114 @@
 # Web-Development-Basics
 
-## Rewriting the Calculator App in REACT / TASKS
+## Styling the App with Tailwind / TASKS
 
-1. (Re)Install REACT packages and configure transpiling JSX syntax
-   - Install the REACT packages by running `npm install react react-dom`
-   - Install the babel react transpiler by running `npm install -D @babel/preset-react`
-   - Configure presete-react transpiling by modifying `webpack.config.js` loader options to the following
-   ```
-   options: {
-     presets: ["@babel/preset-env", ["@babel/preset-react", { runtime: "automatic" }]],
-   },
-   ```
-   - Try a build
-2. Rewrite Vanilla JS codes to REACT syntax
+1.  Install necessary packages
+    `npm install -D css-loader postcss postcss-loader postcss-preset-env style-loader tailwindcss`
 
-   - Modify `src/index.js`
-     - delete all codes, as they are just litter
-     - to import the `createRoot` function from react-dom: `import { createRoot } from "react-dom/client";`
-     - to import a component name _App_ from `App.js`, instead of a vanilla JS function: `import { App } from "./App.js";`
-     - to create the REACT root component: `const root = createRoot(document.getElementById("app"));`
-     - to render the imported _App_ component: `root.render(<App />);`
-   - Try the build now
-     - Notice: We get a warning stating that no _App_ is exported from `App.js`
-   - Modify `src/App.js`
-     - by deleting the old export ~~`export { CreateCalculator };`~~
-     - to define an empty _App_ component with
-     ```
-     const App = () => {
-       return (
-         <>
-           <h1>{"Hello, Web Dev3!"}</h1>
-         </>
-       );
-     };
-     ```
-     - to export the component with the following `export { App };`
-   - Try the build now, it shouldn't have any warnings or errors
-   - Move the old logic inside a new component called _Calculator_
+    - Note: Running order is _webpack_ -> _postcss-loader_-> _postcss_ -> _tailwindcss_ -> _postcss-reset-env_ -> _css-loader_ -> _style-loader_
+    - Explanation: _postcss-loader_ is the webpack loader that calls _postcss_ (by default)
+    - Explanation: _postcss_ css transpiler engine for calling css transpilers as plugins
+    - Explanation: _tailwindcss_ is a _postcss_ plugin, the css-feature rich css lib we will be using. Returns modern css syntax
+    - Explanation: _postcss-preset-env_ is a _postcss_ plugin, converts modern CSS to compatible css
+    - Explanation: _css-loader_ interprets `import [cssFilePath]` statements, returns `require [statement]`
+    - Explanation: _style-loader_ injects css into js according to `require [statement]`
 
-     - create a new file, `src/Calculator.js`, this will house a _Calculator_ component
-     - delete all of the old code from `src/App.js`
-     - export an empty calculator component
+2.  Uninstall the old copy webpack plugin, we will not needed it, and remove its usage from `webpack.config.js`
+3.  Modify `webpack.config.js` to use the tailwind transpilation process, adding a new module rules object
+    ```
+    {
+      test: /\.(css)$/i,
+      exclude: /node_modules/,
+      use: ["style-loader", "css-loader", "postcss-loader"],
+    },
+    ```
+    - Note: [loaders run from right to left](https://webpack.js.org/concepts/loaders/#configuration)
+4.  Create a new file called `[root]/postcss.config.js` with the following content
 
-     ```
-     const Calculator = () => {
-       return (
-         <>
-         </>
-       );
-     };
+    ```
+      const tailwindcss = require("tailwindcss");
+      module.exports = {
+      plugins: ["postcss-preset-env", tailwindcss],
+    };
+    ```
 
-     export { Calculator };
-     ```
+    - Explanation: _tailwindcss_ transpiles tailwind syntax and returns modern css syntax
+    - Explanation: _postcss-preset-env_ transpiles modern css syntax and returns compatible CSS syntax
 
-     - modify `App.js` to import and use the _Calculator_ component [code missing intentionally]
-     - start using the dev server to see changes instantenously
-     - focus on the _return_ statement of the _Calculator_ component. It can export a HTML-like tree structure to create the calculator elem tree, instead of using DOM manipulation syntax. Rewrite it to the following:
-       - Notice: Thinking in REACT
-       - Notice: Thinking in REACT
-       ```
-       <>
-       <div className="calculator">
-        <div className="calculator-display-container">
-          <div>
-            <span className="calculator-display"></span>
-          </div>
-        </div>
-        <div className="calculator-buttons">
-          <input type="button" value="0" />
-          <input type="button" value="C" />
-          <input type="button" value="X" />
-          <input type="button" value="/" />
-          <input type="button" value="7" />
-          <input type="button" value="8" />
-          <input type="button" value="9" />
-          <input type="button" value="+" />
-          <input type="button" value="4" />
-          <input type="button" value="5" />
-          <input type="button" value="6" />
-          <input type="button" value="-" />
-          <input type="button" value="1" />
-          <input type="button" value="2" />
-          <input type="button" value="3" />
-          <input type="button" value="=" />
-        </div>
-       </div>
-       </>
-       ```
+5.  Create a new file called `[root]/tailwind.config.js` with the following content
 
-   - Check the browser after saving the file, the basic structure should appear
-   - Import REACTs _useState_ so the component can have state management ``
-   - Add the display value to the component, deleting the old code values
-     - Notice: using REACTs _useState_ method, which will cause a rerender of the component when setting the value
-     ```
-     const [displayText, setDisplayText] = useState("0");
-     ```
-   - Add the display value to the component inside the span `<span className="calculator-display">{displayText}</span>`
-     - Notice: JSX syntax _{}_ inside html-like elements
-     - Notice: keep tracking Browser / Dev tools + Console for changes
-   - Add the _number1_, _number2_ and _operator_ state variables similarly to display
+    ```
+    module.exports = {
+      content: ["./src/**/*.{js,jsx,ts,tsx}"],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    };
+    ```
 
-   ```
-   const [number1, setNumber1] = useState(0);
-   const [number2, setNumber2] = useState(0);
-   const [operator, setOperator] = useState(null);
-   ```
+    - Explanation: `content: ["./src/**/*.{js,jsx,ts,tsx}"]` goes through files and transpiles tailwind syntax in them
 
-   - move `handleClick`, `reset`, `calculateOperationResult` and `getNumberToDisplay` inside the component and edit the returned jsx syntax to use the click handler `<input type="button" value="0" onClick={handleClick} />`
+6.  Import the css file [as a module](https://webpack.js.org/concepts/loaders/#inline) in `src/index.js`: `import "./styles.css";`
+7.  Delete the hard-coded reference to the stylesheet from `src/template.html`
+    - ~~`<link rel="stylesheet" href="styles.css" type="text/css" />`~~
+8.  Edit `src/style.css` to use the new tailwind syntax
 
-     - Notice: if you try to test the app now, it will give a lot of errors. You need to use the new state management functions when setting any variable, so it will trigger a rerendering of the component
-     - Notice: Performance vs DX
-     - The new functions should look like:
+    ```
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
 
-     ```
-     const reset = () => {
-       setNumber1(0);
-       setNumber2(0);
-       setOperator(null);
-     };
+    @layer components {
+      .calculator {
+        @apply mx-auto my-5 p-5 max-w-sm bg-white rounded-md shadow-lg;
+      }
 
-     const calculateOperationResult = () => {
-       if (operator === "+") {
-         return number1 + number2;
-       }
-       if (operator === "-") {
-         return number1 - number2;
-       }
-       if (operator === "X") {
-         return number1 * number2;
-       }
-       if (operator === "/") {
-         return number1 / number2;
-       }
-     };
+      .calculator-display-container {
+        @apply mx-auto my-2 p-2 bg-neutral-100 rounded-md;
+      }
 
-     const getNumberToDisplay = (numberStr) => {
-       const number = Number(numberStr);
-       let numberToDisplay = undefined;
+      .calculator-display {
+        @apply mx-auto my-2;
+      }
 
-       if (operator !== null) {
-         let newNum2 = number2 * 10 + number;
-         setNumber2(newNum2);
-         numberToDisplay = newNum2;
-       } else {
-         let newNum1 = number1 * 10 + number;
-         setNumber1(newNum1);
-         numberToDisplay = newNum1;
-       }
+      .calculator-buttons {
+        @apply grid grid-cols-4 gap-2 mx-auto my-0 bg-white;
+      }
 
-       return numberToDisplay;
-     };
+      .calculator-button {
+        @apply p-1 bg-white rounded-md shadow-md;
+      }
 
-     const handleClick = (e) => {
-       const symbol = e.target.value;
-       console.log(`${symbol} button clicked`);
-       // special characters
-       if (symbol === "C") {
-         setDisplayText("0");
-         reset();
-       } else if (symbol === "+" || symbol === "-" || symbol === "X" || symbol === "/") {
-         let newOpVal = symbol;
-         setOperator(newOpVal);
-         setDisplayText(newOpVal);
-       } else if (symbol === "=") {
-         let newNum1 = calculateOperationResult();
-         setDisplayText(newNum1);
-         reset();
-         setNumber1(newNum1);
-       }
-       // numbers
-       else {
-         setDisplayText(getNumberToDisplay(symbol));
-       }
-     };
-     ```
+      .calculator-button:active {
+        @apply bg-neutral-100 shadow-md transform translate-y-1;
+      }
+    }
 
-   - Try testing the app now, it should work like a charm
-     - Notice: where we set variables we have changed the code to use the new state management functions `display.innerText = getNumberToDisplay(symbol);` **VS** `setDisplayText(getNumberToDisplay(symbol));`
-     - Notice: The app retains its the old styling
-   - Try adding a new Calculator component inside `App.js`
+    body {
+      color: black;
+      background-color: whitesmoke;
+    }
+
+    input {
+      padding: 0;
+    }
+
+    h1 {
+      background-color: #333;
+      color: #fff;
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+    }
+
+    ```
+
+    - Notice: Tailwind syntax using [custom components](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes)
+    - Notice: `margin: 20px auto` is now broken up into tailwind syntaxes: `my-5` + `mx-auto` - [link to tailwind margin](https://tailwindcss.com/docs/margin)
+    - Notice: `max-width` is now `max-w-sm`
+    - Notice: `background: white` is now `bg-white`
+    - Notice: `border-radius: 5px;` is now `rounded-md`
+    - Notice: `box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);` is now `shadow-lg`
+    - Notice: `display: grid` is now `grid`
+    - Notice: tailwind/css [_pseudo-class_](https://developer.mozilla.org/en-US/docs/Web/CSS/:active): `.calculator-button:active`

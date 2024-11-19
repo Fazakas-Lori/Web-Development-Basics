@@ -76,22 +76,22 @@ const Calculator = () => {
           </div>
         </div>
         <div className="calculator-buttons">
-          <input type="button" value="0" onClick={handleClick} />
-          <input type="button" value="C" onClick={handleClick} />
-          <input type="button" value="X" onClick={handleClick} />
-          <input type="button" value="/" onClick={handleClick} />
-          <input type="button" value="7" onClick={handleClick} />
-          <input type="button" value="8" onClick={handleClick} />
-          <input type="button" value="9" onClick={handleClick} />
-          <input type="button" value="+" onClick={handleClick} />
-          <input type="button" value="4" onClick={handleClick} />
-          <input type="button" value="5" onClick={handleClick} />
-          <input type="button" value="6" onClick={handleClick} />
-          <input type="button" value="-" onClick={handleClick} />
-          <input type="button" value="1" onClick={handleClick} />
-          <input type="button" value="2" onClick={handleClick} />
-          <input type="button" value="3" onClick={handleClick} />
-          <input type="button" value="=" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="0" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="C" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="X" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="/" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="7" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="8" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="9" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="+" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="4" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="5" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="6" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="-" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="1" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="2" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="3" onClick={handleClick} />
+          <input type="button" className="calculator-button" value="=" onClick={handleClick} />
         </div>
       </div>
     </>

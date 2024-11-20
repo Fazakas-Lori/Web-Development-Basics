@@ -1,114 +1,139 @@
 # Web-Development-Basics
 
-## Styling the App with Tailwind / TASKS
+## ADDING A BASIC API & STATIC FILE SERVER TO THE PROJECT / TASKS
 
-1.  Install necessary packages
-    `npm install -D css-loader postcss postcss-loader postcss-preset-env style-loader tailwindcss`
+0. Delete `module1.js` and `Profile.js`, leftovers... and start by modifying `src/frontend/App.js`'s greeting to _Hello Web Dev 4_
+1. Install Express server as a dependency `npm install express`
+2. Create a small server app
 
-    - Note: Running order is _webpack_ -> _postcss-loader_-> _postcss_ -> _tailwindcss_ -> _postcss-reset-env_ -> _css-loader_ -> _style-loader_
-    - Explanation: _postcss-loader_ is the webpack loader that calls _postcss_ (by default)
-    - Explanation: _postcss_ css transpiler engine for calling css transpilers as plugins
-    - Explanation: _tailwindcss_ is a _postcss_ plugin, the css-feature rich css lib we will be using. Returns modern css syntax
-    - Explanation: _postcss-preset-env_ is a _postcss_ plugin, converts modern CSS to compatible css
-    - Explanation: _css-loader_ interprets `import [cssFilePath]` statements, returns `require [statement]`
-    - Explanation: _style-loader_ injects css into js according to `require [statement]`
+   - by creating a backend folder and server.js inside `src/backend/server.js`
+   - by apping the following content to it
 
-2.  Uninstall the old copy webpack plugin, we will not needed it, and remove its usage from `webpack.config.js`
-3.  Modify `webpack.config.js` to use the tailwind transpilation process, adding a new module rules object
-    ```
-    {
-      test: /\.(css)$/i,
-      exclude: /node_modules/,
-      use: ["style-loader", "css-loader", "postcss-loader"],
+   ```
+   const express = require("express");
+   const app = express();
+   const PORT = 3000;
+
+   app.get("/", (req, res) => {
+     res.send("Hello World!");
+   });
+
+   app.listen(PORT, (err) => {
+     if (err) console.log("Error in server setup");
+     console.log("Server listening on Port", PORT);
+   });
+   ```
+
+   - Try it out by running `node /src/backend/server.js` then opening _http://localhost:3000_ in a browser
+     - Notice: App is returning a _text_ content, and the browser just shows it. Inspect it with Chromes Dev tools
+     - Notice: `app.listen`
+     - Notice: `PORT`
+     - Notice: `app.get("/")` GET REST Verb
+
+3. Reorganise the frontend codes
+
+   - Create a `src/frontend` folder and move all front end related codes there (6 files)
+   - Reconfigure webpack and related files so build will still work
+     - Modify `tailwind.config.js`'s content to include _frontend_ folder: `content: ["./src/frontend/**/*.{js,jsx,ts,tsx}"],`
+     - Modify `webpack.config.js` to include _frontend_ folder where applicable (3 places)
+     - Delete dist dir and rerun `npm run build` and `npm run dev`
+
+4. Prepare frontend file for static serving
+
+   - Modify `webpack.config.js`'s bundler so it outputs frontend files to dist/public
+   - Modify `webpack.config.js`'s dev server so it serves frontend files from dist/public
+   - Delete dist dir and rerun `npm run build`
+
+5. We dont need a dev server serving files and a separate api server, so kill webpacks dev server. We will be serving static files from _our own Express server_
+
+   - Run `npm uninstall webpack-dev-server`
+   - Install the following packages that will help us with hot reloading UI content: `npm install -D webpack-dev-middleware webpack-hot-middleware`
+     - Explanation: _webpack-dev-middleware_ is a middleware tool
+     - Explanation: _webpack-hot-middleware_ is a
+   - Configure webpack to use the _hot-middleware_
+     - Modify the entry object to the following: `entry: { bundle: ["./src/frontend/index.js", "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true"] },`
+     - This way anything that is bundled from index.js will be refreshed, bundling codes together with a hot-reloader
+   - Delete the devServer object
+   - Add the _HotModuleReplacementPlugin_ as a plugin, but dont forget to import the webpack object first: `const webpack = require("webpack");`
+
+   ```
+     plugins: [
+      new HTMLWebpackPlugin({
+        title: "Webpack App, YEY!",
+        favicon: "./src/favicon.ico",
+        favicon: "./src/frontend/favicon.ico",
+        filename: "index.html",
+        template: "./src/template.html",
+        template: "./src/frontend/template.html",
+      }),
+      new webpack.HotModuleReplacementPlugin(),
+    ],
+   ```
+
+   - Modify webpack output object so its publicPath is set
+
+   ```
+    output: {
+      path: __dirname + "/dist/public",
+      filename: "[name].js",
+      publicPath: "/",
     },
-    ```
-    - Note: [loaders run from right to left](https://webpack.js.org/concepts/loaders/#configuration)
-4.  Create a new file called `[root]/postcss.config.js` with the following content
+   ```
 
-    ```
-      const tailwindcss = require("tailwindcss");
-      module.exports = {
-      plugins: ["postcss-preset-env", tailwindcss],
-    };
-    ```
+   - Modify `backend/server.js` to serve public / static files and use the hot reload module
 
-    - Explanation: _tailwindcss_ transpiles tailwind syntax and returns modern css syntax
-    - Explanation: _postcss-preset-env_ transpiles modern css syntax and returns compatible CSS syntax
+     - Import the required modules
 
-5.  Create a new file called `[root]/tailwind.config.js` with the following content
+     ```
+     const webpack = require("webpack");
+     const webpackDevMiddleware = require("webpack-dev-middleware");
+     const hotReloader = require("webpack-hot-middleware");
+     ```
 
-    ```
-    module.exports = {
-      content: ["./src/**/*.{js,jsx,ts,tsx}"],
-      theme: {
-        extend: {},
-      },
-      plugins: [],
-    };
-    ```
+     - Get the webpack config object with:
 
-    - Explanation: `content: ["./src/**/*.{js,jsx,ts,tsx}"]` goes through files and transpiles tailwind syntax in them
+     ```
+     const config = require("../../webpack.config.js");
+     const compiler = webpack(config);
+     ```
 
-6.  Import the css file [as a module](https://webpack.js.org/concepts/loaders/#inline) in `src/index.js`: `import "./styles.css";`
-7.  Delete the hard-coded reference to the stylesheet from `src/template.html`
-    - ~~`<link rel="stylesheet" href="styles.css" type="text/css" />`~~
-8.  Edit `src/style.css` to use the new tailwind syntax
+     - Serve static files with the following middleware
 
-    ```
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+     ```
+     // USED TO SERVE STATIC FILES IN DEVELOPMENT
+     if (process.env.NODE_ENV === "production") {
+       app.use(express.static("dist/public"));
+     } else {
+       app.use(
+         webpackDevMiddleware(compiler, {
+           publicPath: config.output.publicPath,
+         })
+       );
+     }
+     ```
 
-    @layer components {
-      .calculator {
-        @apply mx-auto my-5 p-5 max-w-sm bg-white rounded-md shadow-lg;
-      }
+   - Add the hot module replacement middleware as well after it
 
-      .calculator-display-container {
-        @apply mx-auto my-2 p-2 bg-neutral-100 rounded-md;
-      }
+   ```
+   if (process.env.NODE_ENV === "development") {
+     app.use(
+       hotReloader(compiler, {
+         log: console.log,
+         path: "/__webpack_hmr",
+         heartbeat: 10 * 1000,
+       })
+     );
+   }
+   ```
 
-      .calculator-display {
-        @apply mx-auto my-2;
-      }
-
-      .calculator-buttons {
-        @apply grid grid-cols-4 gap-2 mx-auto my-0 bg-white;
-      }
-
-      .calculator-button {
-        @apply p-1 bg-white rounded-md shadow-md;
-      }
-
-      .calculator-button:active {
-        @apply bg-neutral-100 shadow-md transform translate-y-1;
-      }
-    }
-
-    body {
-      color: black;
-      background-color: whitesmoke;
-    }
-
-    input {
-      padding: 0;
-    }
-
-    h1 {
-      background-color: #333;
-      color: #fff;
-      margin: 0;
-      padding: 10px;
-      text-align: center;
-    }
-
-    ```
-
-    - Notice: Tailwind syntax using [custom components](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes)
-    - Notice: `margin: 20px auto` is now broken up into tailwind syntaxes: `my-5` + `mx-auto` - [link to tailwind margin](https://tailwindcss.com/docs/margin)
-    - Notice: `max-width` is now `max-w-sm`
-    - Notice: `background: white` is now `bg-white`
-    - Notice: `border-radius: 5px;` is now `rounded-md`
-    - Notice: `box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);` is now `shadow-lg`
-    - Notice: `display: grid` is now `grid`
-    - Notice: tailwind/css [_pseudo-class_](https://developer.mozilla.org/en-US/docs/Web/CSS/:active): `.calculator-button:active`
+   - Modify `package.json` so _npm run dev_ will start the server
+     - we will need to set NODE*ENV to \_development* in a cross-platform way, so install _cross-env_ package: `npm install -D cross-env`
+     - modify scripts object to
+     ```
+     "scripts": {
+       "build": "webpack",
+       "dev": "npm run build && cross-env NODE_ENV=development node src/backend/server.js"
+     },
+     ```
+   - Test the configuration by running `npm run build` and `npm run dev` then opening _http://localhost:3000_ in a browser
+     - Notice: We lost our api endpoint because middleware is catching it and handling the request. So modify API endpoint to `app.get("/api"...`

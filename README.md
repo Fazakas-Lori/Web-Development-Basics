@@ -1,139 +1,149 @@
 # Web-Development-Basics
 
-## ADDING A BASIC API & STATIC FILE SERVER TO THE PROJECT / TASKS
+## CREATING A REST API FOR CALCULATIONS + IN-MEMORY DB / TASKS
 
-0. Delete `module1.js` and `Profile.js`, leftovers... and start by modifying `src/frontend/App.js`'s greeting to _Hello Web Dev 4_
-1. Install Express server as a dependency `npm install express`
-2. Create a small server app
+0. Prerequisites: installed _POSTMAN_ app or _curl_ cmd line tool
+1. Create 3 different api endpoints that will work on our calculations
 
-   - by creating a backend folder and server.js inside `src/backend/server.js`
-   - by apping the following content to it
-
-   ```
-   const express = require("express");
-   const app = express();
-   const PORT = 3000;
-
-   app.get("/", (req, res) => {
-     res.send("Hello World!");
-   });
-
-   app.listen(PORT, (err) => {
-     if (err) console.log("Error in server setup");
-     console.log("Server listening on Port", PORT);
-   });
-   ```
-
-   - Try it out by running `node /src/backend/server.js` then opening _http://localhost:3000_ in a browser
-     - Notice: App is returning a _text_ content, and the browser just shows it. Inspect it with Chromes Dev tools
-     - Notice: `app.listen`
-     - Notice: `PORT`
-     - Notice: `app.get("/")` GET REST Verb
-
-3. Reorganise the frontend codes
-
-   - Create a `src/frontend` folder and move all front end related codes there (6 files)
-   - Reconfigure webpack and related files so build will still work
-     - Modify `tailwind.config.js`'s content to include _frontend_ folder: `content: ["./src/frontend/**/*.{js,jsx,ts,tsx}"],`
-     - Modify `webpack.config.js` to include _frontend_ folder where applicable (3 places)
-     - Delete dist dir and rerun `npm run build` and `npm run dev`
-
-4. Prepare frontend file for static serving
-
-   - Modify `webpack.config.js`'s bundler so it outputs frontend files to dist/public
-   - Modify `webpack.config.js`'s dev server so it serves frontend files from dist/public
-   - Delete dist dir and rerun `npm run build`
-
-5. We dont need a dev server serving files and a separate api server, so kill webpacks dev server. We will be serving static files from _our own Express server_
-
-   - Run `npm uninstall webpack-dev-server`
-   - Install the following packages that will help us with hot reloading UI content: `npm install -D webpack-dev-middleware webpack-hot-middleware`
-     - Explanation: _webpack-dev-middleware_ is a middleware tool
-     - Explanation: _webpack-hot-middleware_ is a
-   - Configure webpack to use the _hot-middleware_
-     - Modify the entry object to the following: `entry: { bundle: ["./src/frontend/index.js", "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true"] },`
-     - This way anything that is bundled from index.js will be refreshed, bundling codes together with a hot-reloader
-   - Delete the devServer object
-   - Add the _HotModuleReplacementPlugin_ as a plugin, but dont forget to import the webpack object first: `const webpack = require("webpack");`
-
-   ```
-     plugins: [
-      new HTMLWebpackPlugin({
-        title: "Webpack App, YEY!",
-        favicon: "./src/favicon.ico",
-        favicon: "./src/frontend/favicon.ico",
-        filename: "index.html",
-        template: "./src/template.html",
-        template: "./src/frontend/template.html",
-      }),
-      new webpack.HotModuleReplacementPlugin(),
-    ],
-   ```
-
-   - Modify webpack output object so its publicPath is set
-
-   ```
-    output: {
-      path: __dirname + "/dist/public",
-      filename: "[name].js",
-      publicPath: "/",
-    },
-   ```
-
-   - Modify `backend/server.js` to serve public / static files and use the hot reload module
-
-     - Import the required modules
+   - `_GET_, api/calculation`: If we send a GET request here, we will get back a json object containing all the previous calculations
 
      ```
-     const webpack = require("webpack");
-     const webpackDevMiddleware = require("webpack-dev-middleware");
-     const hotReloader = require("webpack-hot-middleware");
+     app.get("/api/calculation", (req, res) => {
+       console.log("GET /api/calculation");
+       res.sendStatus(200);
+     });
      ```
 
-     - Get the webpack config object with:
+     - Notice: `res.sendStatus(200);` will send a _success_ signal back to the client
+
+   - `POST, api/calculation`: When we press the _"="_ symbol on the calculator the result will be sent to the server
 
      ```
-     const config = require("../../webpack.config.js");
-     const compiler = webpack(config);
+     app.post("/api/calculation", (req, res) => {
+       console.log("POST /api/calculation");
+       res.sendStatus(201);
+     });
      ```
 
-     - Serve static files with the following middleware
+     - Notice: `res.sendStatus(201);` will send a _created_ signal back to the client
+
+   - `DELETE, api/calculation/[id]`: If we send a DELETE request here, the specified calculation will be deleted
 
      ```
-     // USED TO SERVE STATIC FILES IN DEVELOPMENT
-     if (process.env.NODE_ENV === "production") {
-       app.use(express.static("dist/public"));
+     app.delete("/api/calculation/:id", (req, res) => {
+       console.log("DELETE /api/calculation/:id");
+       res.sendStatus(204);
+     });
+     ```
+
+     - Notice: `res.sendStatus(204);` will send a _did it, but I have nothing to say_ signal back to the client
+     - Notice: _url param parsing_
+     - Notice: `console.log`s on all api endpoints to help development and logging
+
+   - **Try them out from Postman app**
+     - Note: You will have to restart server after any editing - hot reload for server components is not enabled
+
+2. Create an in-memory database
+
+   - Create a module file called `src/backend/db.js`
+   - It should export a function wich returns an object with some inner functions when called. Has an array where it stores numbers
+
+     ```
+     const { v4: uuidv4 } = require("uuid");
+
+     const db = () => {
+       let numObj = [];
+
+       const getNums = () => {
+         return numObj;
+       };
+
+       const createNum = (num) => {
+         const newNum = { id: uuidv4(), num: num };
+         numObj.push(newNum);
+         console.log(`Creating num ${newNum.num} with id: ${newNum.id}`);
+       };
+
+       const findNum = (id) => {
+         return numObj.find((numObj) => numObj.id === id);
+       };
+
+       const deleteNum = (id) => {
+         numObj = numObj.filter((numObj) => numObj.id !== id);
+         console.log(`Deleting num: ${id}`);
+       };
+
+       return { getNums, createNum, findNum, deleteNum };
+     };
+
+     module.exports = db;
+     ```
+
+     - Notice: Using `uuidv4` package for id-ing objects
+     - Notice: _module.exports_ syntax
+     - Notice: JS closures, `numObj`
+
+   - Install _uuidv4_ package `npm install uuidv4`
+
+3. Finish the api requests
+
+   - Import and instantiate the db
+     ```
+     const dbInit = require("./db.js");
+     const db = dbInit();
+     ```
+   - `GET, api/calculation`: Use the `db` objects interface send back all the numbers
+     ```
+     console.log("GET /api/calculation");
+     const nums = db.getNums();
+     res.json(nums, 200);
+     ```
+     - Notice: `res.json` We will be sending back the number in json format
+   - `POST, api/calculation`: Use the `db` objects interface to store the new number
+
+     ```
+     console.log("POST /api/calculation");
+     const num = req.body.num;
+     db.createNum(num);
+     res.sendStatus(201);
+     ```
+
+   - `DELETE, api/calculation/[id]`:
+
+     ```
+     console.log("DELETE /api/calculation/:id");
+     const numId = req.params.id;
+     if (db.findNum(numId) !== undefined) {
+       db.deleteNum(numId);
+       res.sendStatus(204);
      } else {
-       app.use(
-         webpackDevMiddleware(compiler, {
-           publicPath: config.output.publicPath,
-         })
-       );
+       jsonErr = { error: "Num not found in DB" };
+       res.json(jsonErr, 404);
      }
      ```
 
-   - Add the hot module replacement middleware as well after it
+     - Notice: `res.json(jsonErr, 404);` will send a generic _not found_ signal back to the client together with an error message
 
-   ```
-   if (process.env.NODE_ENV === "development") {
-     app.use(
-       hotReloader(compiler, {
-         log: console.log,
-         path: "/__webpack_hmr",
-         heartbeat: 10 * 1000,
-       })
-     );
-   }
-   ```
+   - Try the app now from postman
+     - Notice: We are getting all sorts of error related to json usage with the POST endpoint
+     - Use express's json middleware: `app.use(express.json());`
+     - Notice: Middleware syntax with _app.use_ in Express based Server Frameworks. But also in [_ASP.NET Core_](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0)
+     - Notice: [_Nodejs based API handlers(like NextJS)_](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) all get a request and response object representing the HTTP request and HTTP Response. But also in [_ASP.NET Core Minimal Api_](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-9.0#endpoint-defined-outside-of-programcs)
 
-   - Modify `package.json` so _npm run dev_ will start the server
-     - we will need to set NODE*ENV to \_development* in a cross-platform way, so install _cross-env_ package: `npm install -D cross-env`
-     - modify scripts object to
-     ```
-     "scripts": {
-       "build": "webpack",
-       "dev": "npm run build && cross-env NODE_ENV=development node src/backend/server.js"
-     },
-     ```
-   - Test the configuration by running `npm run build` and `npm run dev` then opening _http://localhost:3000_ in a browser
-     - Notice: We lost our api endpoint because middleware is catching it and handling the request. So modify API endpoint to `app.get("/api"...`
+4. Debug the application from VSCode
+   - _hands on_
+5. Further challenges
+   - Backend:
+     - Rewrite the two file using ES6 module syntax ([_CommonJS vs ES Modules_](https://www.syncfusion.com/blogs/post/js-commonjs-vs-es-modules)) - hint: renaming files with .mjs extensions helps
+     - Create a timed function that saves the db from time-to-time to a file
+     - Load the calculations file when the server starts
+     - _GET, api/calculation/[id]_: If we send a DELETE request here, supplying a correct id, we will get back a json object containing only the requested calculation
+     - _DELETE, api/calculation_: If we send a DELETE request here, all calculations will be deleted from the db
+     - _PUT, api/calculation_/[id]: If we send a PUT request here, supplying a correct id, the calculation will be updated in the db
+   - Frontend:
+     - Save all the calculation to a file (_OS api usage: fs, path_)
+     - Create a frontend REACT component that can use all these APIs
+   - Frontend + Backend:
+     - Simulate that an enpoint is behind authorization by checking if the cliend has send a bearer token in the [**HTTP-Authorization Header**](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization)
+       - in the api endpoint
+       - with middleware for all api endpoints

@@ -1,42 +1,43 @@
 const express = require("express");
 const app = express();
-const PORT = 3000;
-
-const webpack = require("webpack");
-const webpackDevMiddleware = require("webpack-dev-middleware");
-const hotReloader = require("webpack-hot-middleware");
-
-const config = require("../../webpack.config.js");
-const compiler = webpack(config);
+const PORT = process.env.PORT || 3000;
 
 const dbInit = require("./db.js");
 const db = dbInit();
 
-console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("SERVER: NODE_ENV:", process.env.NODE_ENV);
 
-app.use(express.json());
+if (process.env.NODE_ENV === "development") {
+  const webpack = require("webpack");
+  const webpackDevMiddleware = require("webpack-dev-middleware");
+  const hotReloader = require("webpack-hot-middleware");
 
-// USED TO SERVE STATIC FILES IN DEVELOPMENT
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("dist/public"));
-} else {
+  const configs = require("../../webpack.config.js");
+  const frontendConfig = configs.find((config) => config.name === "frontend");
+  const frontendCompiler = webpack(frontendConfig);
+
+  // USED TO SERVE STATIC FILES IN DEVELOPMENT
   app.use(
-    webpackDevMiddleware(compiler, {
-      publicPath: config.output.publicPath,
+    webpackDevMiddleware(frontendCompiler, {
+      publicPath: frontendConfig.output.publicPath,
     })
   );
-}
 
-// USED TO ENABLE HOT RELOADING OF UI CODES IN DEVELOPMENT
-if (process.env.NODE_ENV === "development") {
+  // USED TO ENABLE HOT RELOADING OF UI CODES IN DEVELOPMENT
   app.use(
-    hotReloader(compiler, {
+    hotReloader(frontendCompiler, {
       log: console.log,
       path: "/__webpack_hmr",
       heartbeat: 10 * 1000,
     })
   );
 }
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(__dirname + "/public"));
+}
+
+app.use(express.json());
 
 app.get("/api", (req, res) => {
   console.log("GET /api");

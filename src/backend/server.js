@@ -44,21 +44,27 @@ app.get("/api", (req, res) => {
   res.send("Hello World!");
 });
 
-app.get("/api/calculation", (req, res) => {
-  console.log("GET /api/calculation");
+app.get("/api/calculations", (req, res) => {
+  console.log("GET /api/calculations");
   const nums = db.getNums();
-  res.json(nums, 200);
+  if (process.env.NODE_ENV === "development") {
+    setTimeout(() => {
+      res.json(nums, 200);
+    }, 1000);
+  } else {
+    res.json(nums, 200);
+  }
 });
 
-app.post("/api/calculation", (req, res) => {
-  console.log("POST /api/calculation");
+app.post("/api/calculations", (req, res) => {
+  console.log("POST /api/calculations");
   const num = req.body.num;
   db.createNum(num);
   res.sendStatus(201);
 });
 
-app.delete("/api/calculation/:id", (req, res) => {
-  console.log("DELETE /api/calculation/:id");
+app.delete("/api/calculations/:id", (req, res) => {
+  console.log("DELETE /api/calculations/:id");
   const numId = req.params.id;
   if (db.findNum(numId) !== undefined) {
     db.deleteNum(numId);

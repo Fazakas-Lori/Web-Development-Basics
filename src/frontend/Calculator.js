@@ -12,6 +12,16 @@ const Calculator = () => {
     setOperator(null);
   };
 
+  const sendToServer = async (num) => {
+    console.log(`Sending number ${num} to server`);
+    const res = await fetch("/api/calculations", {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ num: new Number(num) }),
+    });
+    console.log(`Server response: ${res.status} and message ${res.statusText}`);
+  };
+
   const calculateOperationResult = () => {
     if (operator === "+") {
       return number1 + number2;
@@ -59,6 +69,7 @@ const Calculator = () => {
       let newNum1 = calculateOperationResult();
       setDisplayText(newNum1);
       reset();
+      sendToServer(newNum1);
       setNumber1(newNum1);
     }
     // numbers

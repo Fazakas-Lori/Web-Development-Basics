@@ -26,6 +26,14 @@
   .calculator-button:active {
     @apply bg-neutral-100 shadow-md transform translate-y-1;
   }
+
+  .numbers {
+    @apply mx-auto my-2 p-5 max-w-sm bg-white rounded-md shadow-lg text-sm;
+  }
+
+  .numbers-list {
+    @apply mx-auto my-2 p-5 bg-neutral-100 shadow-md rounded-md;
+  }
 }
 
 body {
